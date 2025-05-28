@@ -2,9 +2,12 @@ package com.example.auth_service.controller;
 
 import com.example.auth_service.model.JwtResponse;
 import com.example.auth_service.model.LoginRequest;
+import com.example.auth_service.model.RefreshToken;
+import com.example.auth_service.model.TokenRefreshRequest;
 import com.example.auth_service.model.User;
 import com.example.auth_service.repository.UserRepository;
 import com.example.auth_service.security.JwtUtil;
+import com.example.auth_service.service.RefreshTokenService;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,9 @@ public class AuthController {
     @Autowired
     private PasswordEncoder passwordEncoder;
     
+    @Autowired
+    private RefreshTokenService refreshTokenService;
+    
     
     @Autowired
     private JwtUtil jwtUtil;
@@ -37,8 +43,9 @@ public class AuthController {
         }
 
         String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
 
-        return ResponseEntity.ok(new JwtResponse(token));
+        return ResponseEntity.ok(new JwtResponse(token, refreshToken.getToken()));
     }
 
     @PostMapping("/register")
@@ -49,5 +56,19 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         return ResponseEntity.ok("User registered");
+    }
+    
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken(@RequestBody TokenRefreshRequest request) {
+        String requestToken = request.getRefreshToken();
+
+        return refreshTokenService.findByToken(requestToken)
+            .map(refreshTokenService::verifyExpiration)
+            .map(RefreshToken::getUser)
+            .map(user -> {
+                String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
+                return ResponseEntity.ok(new JwtResponse(token, requestToken));
+            })
+            .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
     }
 }

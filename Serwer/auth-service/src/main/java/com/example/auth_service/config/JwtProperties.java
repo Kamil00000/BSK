@@ -9,6 +9,7 @@ public class JwtProperties {
 
     private String secret;
     private long expiration;
+    private long refreshExpirationMs;
 
     // Gettery i settery
     public String getSecret() {
@@ -26,4 +27,12 @@ public class JwtProperties {
     public void setExpiration(long expiration) {
         this.expiration = expiration;
     }
+
+	public long getRefreshExpirationMs() {
+		return refreshExpirationMs;
+	}
+
+	public void setRefreshExpirationMs(long refreshExpirationMs) {
+		this.refreshExpirationMs = refreshExpirationMs;
+	}
 }
