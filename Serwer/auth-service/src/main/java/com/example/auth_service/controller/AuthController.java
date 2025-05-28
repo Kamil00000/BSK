@@ -8,7 +8,9 @@ import com.example.auth_service.model.User;
 import com.example.auth_service.repository.UserRepository;
 import com.example.auth_service.security.JwtUtil;
 import com.example.auth_service.service.RefreshTokenService;
+import com.example.auth_service.service.TokenBlacklistService;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +30,9 @@ public class AuthController {
     
     @Autowired
     private RefreshTokenService refreshTokenService;
+    
+    @Autowired
+    private TokenBlacklistService tokenBlacklistService;
     
     
     @Autowired
@@ -70,5 +75,20 @@ public class AuthController {
                 return ResponseEntity.ok(new JwtResponse(token, requestToken));
             })
             .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
+    }
+    
+
+    @GetMapping("/validate")
+    public ResponseEntity<?> validateToken(@RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        try {
+            if (tokenBlacklistService.isTokenBlacklisted(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token is blacklisted");
+            }
+            jwtUtil.validateToken(token);
+            return ResponseEntity.ok("Token is valid");
+        } catch (JwtException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token: " + e.getMessage());
+        }
     }
 }
