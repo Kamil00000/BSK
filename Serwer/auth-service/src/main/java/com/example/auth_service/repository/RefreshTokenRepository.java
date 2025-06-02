@@ -8,16 +8,18 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.example.auth_service.DTO.UserDTO;
 import com.example.auth_service.model.RefreshToken;
-import com.example.auth_service.model.User;
 
 import org.springframework.transaction.annotation.Transactional;
 
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
     Optional<RefreshToken> findByToken(String token);
     
-    @Transactional
-    void deleteByUser(User user);
+    //@Transactional
+    //void deleteByUser(UserDTO user);
+    
+    void deleteByUserId(Long userId);
     
     @Modifying
     @Transactional

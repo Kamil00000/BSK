@@ -16,11 +16,25 @@ public class UserServices {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private VerificationClient verificationClient;
+    
+    
     public void registerUser(User user) {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
             throw new IllegalArgumentException("Username already exists");
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userRepository.save(user);
+        
+        verificationClient.generateActivationCode(user.getUsername());
+
+    }
+    
+    public void enableUser(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        user.setEnabled(true);
         userRepository.save(user);
     }
 }
