@@ -16,9 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
     Optional<RefreshToken> findByToken(String token);
     
-    //@Transactional
-    //void deleteByUser(UserDTO user);
-    
     void deleteByUserId(Long userId);
     
     @Modifying

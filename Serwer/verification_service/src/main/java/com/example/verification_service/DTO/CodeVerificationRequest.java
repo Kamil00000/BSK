@@ -5,9 +5,9 @@ import lombok.Data;
 
 @Data
 public class CodeVerificationRequest {
-    @NotBlank(message = "Username cannot be blank")
+    @NotBlank(message = "Nazwa użytkownika nie może być pusta")
     private String username;
 
-    @NotBlank(message = "Username cannot be blank")
+    @NotBlank(message = "Kod nie może być pusty")
     private String code;
 }

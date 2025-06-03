@@ -17,6 +17,7 @@ public class UserServiceSecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/users/register").permitAll()
                 .requestMatchers("/users/by-username/**").permitAll()
                 .requestMatchers("/users/by-id/**").permitAll()
+                .requestMatchers("/users/activate").permitAll()
                 .anyRequest().authenticated()
             );
 

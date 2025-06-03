@@ -8,12 +8,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.example.verification_service.enums.VerificationType;
 import com.example.verification_service.model.VerificationCode;
 
 @Repository
 public interface VerificationRepository extends JpaRepository<VerificationCode, Long> {
 	@Query("SELECT v FROM VerificationCode v WHERE v.userId = :userId AND v.code = :code AND v.used = false AND v.expiration > :now")
 	Optional<VerificationCode> findValidCode(@Param("userId") String userId, @Param("code") String code, @Param("now") LocalDateTime now);
+	
+	Optional<VerificationCode> findByUserIdAndType(String userId, VerificationType type);
 
 
     default void invalidate(VerificationCode code) {

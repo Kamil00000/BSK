@@ -18,29 +18,12 @@ public class RefreshTokenService {
     private Long refreshTokenDurationMs;
 
     private final RefreshTokenRepository refreshTokenRepository;
-    //private final UserRepository userRepository;
     private final UserClient userClient;
-
-    
-	/*
-	 * public RefreshTokenService(RefreshTokenRepository refreshTokenRepository,
-	 * UserRepository userRepository) { this.refreshTokenRepository =
-	 * refreshTokenRepository; this.userRepository = userRepository; }
-	 */
 
     public RefreshTokenService(RefreshTokenRepository refreshTokenRepository, UserClient userClient) {
         this.refreshTokenRepository = refreshTokenRepository;
         this.userClient = userClient;
     }
-    
-	/*
-	 * public RefreshToken createRefreshToken(Long userId) { RefreshToken token =
-	 * new RefreshToken();
-	 * token.setUser(userRepository.findById(userId).orElseThrow());
-	 * token.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
-	 * token.setToken(UUID.randomUUID().toString()); return
-	 * refreshTokenRepository.save(token); }
-	 */
     
     public RefreshToken createRefreshToken(Long userId) {
         UserDTO user = userClient.getUserById(userId);
@@ -64,22 +47,10 @@ public class RefreshTokenService {
     public Optional<RefreshToken> findByToken(String token) {
         return refreshTokenRepository.findByToken(token);
     }
-
-	/*
-	 * public void deleteByUserId(Long userId) { User user =
-	 * userRepository.findById(userId).orElseThrow();
-	 * refreshTokenRepository.deleteByUser(user); }
-	 */
     
     public void deleteByUserId(Long userId) {
         refreshTokenRepository.deleteByUserId(userId);
     }
-    
-	/*
-	 * public void deleteByUsername(String username) { Optional<User> user =
-	 * userRepository.findByUsername(username); user.ifPresent(u ->
-	 * refreshTokenRepository.deleteByUser(u)); }
-	 */
     
     public void deleteByUsername(String username) {
         UserDTO user = userClient.getUserByUsername(username);

@@ -5,6 +5,8 @@ import lombok.Data;
 
 @Data
 public class VerificationRequest {
-    @NotBlank(message = "Username cannot be blank")
+    @NotBlank(message = "Nazwa użytkownika nie może być pusta")
     private String username;
+    @NotBlank(message = "Email nie może być pusty")
+    private String email;
 }

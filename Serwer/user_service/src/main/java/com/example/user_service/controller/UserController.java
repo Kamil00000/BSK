@@ -1,6 +1,7 @@
 package com.example.user_service.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 
+import com.example.user_service.DTO.ActivationRequest;
 import com.example.user_service.model.User;
 import com.example.user_service.repository.UserRepository;
 import com.example.user_service.service.UserServices;
@@ -27,7 +29,7 @@ public class UserController {
     public ResponseEntity<?> registerUser(@RequestBody @Valid User user) {
         try {
             userService.registerUser(user);
-            return ResponseEntity.ok("User registered successfully");
+            return ResponseEntity.ok("Rejestracja użytkownika pomyślna");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -48,18 +50,15 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
     
-    @PostMapping("/verify")
-    public ResponseEntity<?> verifyCode(@RequestBody @Valid CodeVerificationRequest request) {
-        boolean result = verificationService.verifyCode(request.getUsername(), request.getCode());
-        if (result) {
-            // Aktywujemy konto użytkownika po poprawnej weryfikacji
-            userService.enableUser(request.getUsername());
-            return ResponseEntity.ok("Account activated successfully");
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired code");
+    @PostMapping("/activate")
+    public ResponseEntity<?> activateAccount(@RequestBody ActivationRequest request) {
+        try {
+            userService.activateUser(request.getUsername(), request.getCode());
+            return ResponseEntity.ok("Konto pomyślnie aktywowane.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
-    
-    //Kontynuacja jutro
 
+   
 }

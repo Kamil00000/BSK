@@ -22,19 +22,27 @@ public class UserServices {
     
     public void registerUser(User user) {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            throw new IllegalArgumentException("Username already exists");
+            throw new IllegalArgumentException("Użytkownik o zadanej nazwie już isntieje");
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         
-        verificationClient.generateActivationCode(user.getUsername());
+        verificationClient.generateActivationCode(user.getUsername(), user.getEmail());
 
     }
     
-    public void enableUser(String username) {
+    public void activateUser(String username, String code) {
+        boolean valid = verificationClient.verifyActivationCode(username, code);
+        if (!valid) {
+            throw new IllegalArgumentException("Niepoprawny lub wygasły kod aktywacyjny");
+        }
+
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Użytkownik nieznaleziony"));
+
         user.setEnabled(true);
         userRepository.save(user);
     }
+
+    
 }

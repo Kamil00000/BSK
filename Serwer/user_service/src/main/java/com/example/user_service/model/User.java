@@ -16,19 +16,23 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
+    @NotBlank(message = "Nazwa użytkownika jest wymagana")
+    @Size(min = 3, max = 50, message = "Nazwa użytkownika musi być pomiędzy 3 a 50 znaków")
     @Column(unique = true)
     private String username;
 
-    @NotBlank(message = "Password is required")
-    @Size(min = 6, message = "Password must be at least 6 characters")
+    @NotBlank(message = "Email jest wymagany")
+    @Column(unique = true)
+    private String email;
+    
+    @NotBlank(message = "Hasło jest wymagane")
+    @Size(min = 6, message = "Hasło musi być przynajmniej 6 znakowe")
     private String password;
 
-    @NotBlank(message = "Role is required")
+    @NotBlank(message = "Rola jest wymagana")
     private String role;
 
     private boolean enabled = false;
 
-    private boolean twoFactorEnabled = false;
+    private boolean twoFactorEnabled = true;
 }

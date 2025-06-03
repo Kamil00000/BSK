@@ -1,4 +1,4 @@
-package com.example.user_service.service;
+package com.example.auth_service.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,8 +23,8 @@ public class VerificationClient {
     private String verificationServiceUrl; 
 
 
-    public void generateActivationCode(String username, String email) {
-        String url = verificationServiceUrl + "/verification/generate/activation";
+    public void generate2FACode(String username, String email) {
+        String url = verificationServiceUrl + "/verification/generate/2fa";
 
         Map<String, String> requestBody = new HashMap<>();
         requestBody.put("username", username);
@@ -33,7 +33,7 @@ public class VerificationClient {
         restTemplate.postForObject(url, requestBody, String.class);
     }
     
-    public boolean verifyActivationCode(String username, String code) {
+    public boolean verify2FACode(String username, String code) {
         String url = verificationServiceUrl + "/verification/verify";
 
         HttpHeaders headers = new HttpHeaders();

@@ -19,17 +19,30 @@ public class VerificationServices {
 
     public String generateCode(String username, VerificationType type) {
         String code = String.format("%06d", new Random().nextInt(999999));
-        VerificationCode vc = VerificationCode.builder()
-                .userId(username)
-                .code(code)
-                .type(type)
-                .expiration(LocalDateTime.now().plusMinutes(10))
-                .used(false)
-                .build();
+        
+        Optional<VerificationCode> existing = repository.findByUserIdAndType(username, type);
+        VerificationCode vc;
+
+        if (existing.isPresent()) {
+            vc = existing.get();
+            vc.setCode(code);
+            vc.setExpiration(LocalDateTime.now().plusMinutes(10));
+            vc.setUsed(false);
+        } else {
+            vc = VerificationCode.builder()
+                    .userId(username)
+                    .code(code)
+                    .type(type)
+                    .expiration(LocalDateTime.now().plusMinutes(10))
+                    .used(false)
+                    .build();
+        }
+
         repository.save(vc);
         return code;
     }
 
+    
     public boolean verifyCode(String username, String code) {
         Optional<VerificationCode> result = repository.findValidCode(username, code, LocalDateTime.now());
         result.ifPresent(repository::invalidate);
