@@ -31,27 +31,40 @@ public class SecurityConfig {
     @Autowired
     private JwtUtil jwtUtil;
 
-	@Bean
-	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http
-	    .csrf(csrf -> csrf.disable())
-	    .authorizeHttpRequests(auth -> auth
-	        .requestMatchers("/auth/**").permitAll()
-	        .requestMatchers("/admin/**").hasRole("ADMIN")
-	        .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
-	        .anyRequest().authenticated()
-	    )
-	    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-	    .logout(logout -> logout
-	            .logoutUrl("/auth/logout")
-	            .addLogoutHandler(new JwtLogoutHandler(tokenBlacklistService, jwtUtil, refreshTokenService))
-	            .logoutSuccessHandler((request, response, authentication) -> {
-	                response.setStatus(HttpStatus.OK.value());
-	            })
-	        );
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .httpBasic(basic -> basic.disable())
+            .exceptionHandling(handling -> handling
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\":\"Unauthorized\",\"message\":\"" + authException.getMessage() + "\"}");
+                })
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    response.setStatus(HttpStatus.FORBIDDEN.value());
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\":\"Forbidden\",\"message\":\"Access denied\"}");
+                })
+            )
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .logout(logout -> logout
+                .logoutUrl("/auth/logout")
+                .addLogoutHandler(new JwtLogoutHandler(tokenBlacklistService, jwtUtil, refreshTokenService))
+                .logoutSuccessHandler((request, response, authentication) -> {
+                    response.setStatus(HttpStatus.OK.value());
+                })
+            );
 
-	    return http.build();
-	}
+        return http.build();
+    }
 
     @Bean
     PasswordEncoder passwordEncoder() {

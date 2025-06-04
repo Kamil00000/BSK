@@ -6,12 +6,14 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.auth_service.DTO.UserDTO;
 import com.example.auth_service.model.RefreshToken;
 import com.example.auth_service.repository.RefreshTokenRepository;
 
 @Service
+@Transactional
 public class RefreshTokenService {
 
     @Value("${jwt.refreshExpirationMs}")
@@ -47,6 +49,7 @@ public class RefreshTokenService {
     public Optional<RefreshToken> findByToken(String token) {
         return refreshTokenRepository.findByToken(token);
     }
+    
     
     public void deleteByUserId(Long userId) {
         refreshTokenRepository.deleteByUserId(userId);

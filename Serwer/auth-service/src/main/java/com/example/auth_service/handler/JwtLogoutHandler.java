@@ -3,6 +3,7 @@ package com.example.auth_service.handler;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.auth_service.security.JwtUtil;
 import com.example.auth_service.service.RefreshTokenService;
@@ -27,6 +28,7 @@ public class JwtLogoutHandler implements LogoutHandler {
     }
 
     @Override
+    @Transactional
     public void logout(HttpServletRequest request, HttpServletResponse response, 
                       Authentication authentication) {
         String token = extractToken(request);

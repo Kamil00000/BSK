@@ -10,4 +10,8 @@ class AuthPrefs(context: Context) {
     var authToken: String?
         get() = prefs.getString("jwt_token", null)
         set(value) = prefs.edit().putString("jwt_token", value).apply()
+
+    var refreshToken: String?
+        get() = prefs.getString("refresh_token", null)
+        set(value) = prefs.edit().putString("refresh_token", value).apply()
 }
