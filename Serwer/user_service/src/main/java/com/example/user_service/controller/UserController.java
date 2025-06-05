@@ -1,5 +1,7 @@
 package com.example.user_service.controller;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,8 +31,9 @@ public class UserController {
     public ResponseEntity<?> registerUser(@RequestBody @Valid User user) {
         try {
             userService.registerUser(user);
-            return ResponseEntity.ok("Rejestracja użytkownika pomyślna");
-        } catch (IllegalArgumentException e) {
+            Map<String, String> response = Map.of("message", "Rejestracja użytkownika pomyślna");
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);        
+            } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -54,7 +57,8 @@ public class UserController {
     public ResponseEntity<?> activateAccount(@RequestBody ActivationRequest request) {
         try {
             userService.activateUser(request.getUsername(), request.getCode());
-            return ResponseEntity.ok("Konto pomyślnie aktywowane.");
+            Map<String, String> response = Map.of("message", "Konto pomyślnie aktywowane.");
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);     
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }

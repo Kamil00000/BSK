@@ -11,6 +11,9 @@ import com.example.securechatapp.network.LoginRequest
 class AuthViewModel : ViewModel() {
     private val _loginResult = MutableLiveData<Result<String>>()
     val loginResult: LiveData<Result<String>> = _loginResult
+    private val _registerResult = MutableLiveData<Result<String>>()
+    val registerResult: LiveData<Result<String>> = _registerResult
+
 
     fun login(username: String, password: String) {
         viewModelScope.launch {
@@ -26,4 +29,22 @@ class AuthViewModel : ViewModel() {
             }
         }
     }
+
+
+    fun register(username: String, email: String, password: String) {
+        viewModelScope.launch {
+            try {
+                val request = RegisterRequest(username, email, password)
+                val response = ApiClient.instance.register(request)
+                if (response.isSuccessful) {
+                    _registerResult.value = Result.success(response.body()?.message ?: "Registration successful")
+                } else {
+                    _registerResult.value = Result.failure(Exception("Registration failed"))
+                }
+            } catch (e: Exception) {
+                _registerResult.value = Result.failure(e)
+            }
+        }
+    }
+
 }

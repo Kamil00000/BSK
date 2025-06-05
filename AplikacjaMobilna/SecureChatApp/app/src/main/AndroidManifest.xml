@@ -16,15 +16,25 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
         tools:targetApi="31" >
-        <activity android:name=".LoginActivity"
-            android:exported="true">
+
+        <activity android:name=".StartActivity"
+            android:exported="true"
+            android:theme="@style/Theme.SecureApp.GreenBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".MainActivity" />
+        <activity android:name=".LoginActivity"
+            android:theme="@style/Theme.SecureApp.GreenBar" />
+        <activity android:name=".RegisterActivity"
+            android:theme="@style/Theme.SecureApp.GreenBar" />
+        <activity android:name=".MainActivity"
+            android:theme="@style/Theme.SecureApp.GreenBar" />
+        <activity android:name=".ActivationActivity"
+            android:theme="@style/Theme.SecureApp.GreenBar" />
+
     </application>
 
 </manifest>
