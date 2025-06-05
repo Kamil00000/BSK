@@ -1,10 +1,13 @@
 package com.example.user_service.controller;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,29 +31,61 @@ public class UserController {
     private UserRepository userRepository;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody @Valid User user) {
+    public ResponseEntity<?> registerUser(@RequestBody @Valid User user,  BindingResult bindingResult) {
+    	 if (bindingResult.hasErrors()) {
+    	        Map<String, String> errors = new HashMap<>();
+    	        bindingResult.getFieldErrors().forEach(error ->
+    	            errors.put(error.getField(), error.getDefaultMessage())
+    	        );
+    	        return ResponseEntity.badRequest().body(errors);
+    	    }
+
         try {
             userService.registerUser(user);
             Map<String, String> response = Map.of("message", "Rejestracja użytkownika pomyślna");
-            return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);        
+            	return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);        
             } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+            	return ResponseEntity.badRequest().body(e.getMessage());
+            }
+       }
     
 
     @GetMapping("/by-username/{username}")
-    public ResponseEntity<User> getUserByUsername(@PathVariable("username") String username) {
-        return userRepository.findByUsername(username)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Object> getUserByUsername(@PathVariable("username") String username) {
+        if (username == null || username.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Nazwa użytkownika nie została podana"));
+        }
+        try {
+            Optional<User> userOptional = userRepository.findByUsername(username);
+            if (userOptional.isPresent()) {
+                return ResponseEntity.ok(userOptional.get());
+            } else {
+                Map<String, String> error = Map.of("error", "Użytkownik o nazwie '" + username + "' nie został znaleziony");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+            }
+        } catch (Exception e) {
+            Map<String, String> error = Map.of("error", "Wystąpił błąd podczas wyszukiwania użytkownika");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
     }
     
     @GetMapping("/by-id/{id}")
-    public ResponseEntity<User> getUserByID(@PathVariable("id") Long id) {
-        return userRepository.findByid(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Object> getUserByID(@PathVariable("id") Long id) {
+    	 if (id == null) {
+             return ResponseEntity.badRequest().body(Map.of("error", "ID użytkownika nie zostało podane"));
+         }
+        try {
+            Optional<User> userOptional = userRepository.findByid(id);
+            if (userOptional.isPresent()) {
+                return ResponseEntity.ok(userOptional.get());
+            } else {
+                Map<String, String> error = Map.of("error", "Użytkownik o nazwie '" + id + "' nie został znaleziony");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+            }
+        } catch (Exception e) {
+            Map<String, String> error = Map.of("error", "Wystąpił błąd podczas wyszukiwania użytkownika");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
     }
     
     @PostMapping("/activate")
