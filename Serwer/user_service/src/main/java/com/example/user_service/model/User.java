@@ -34,5 +34,5 @@ public class User {
 
     private boolean enabled = false;
 
-    private boolean twoFactorEnabled = false;
+    private boolean twoFactorEnabled = true;
 }

@@ -7,6 +7,7 @@ import androidx.activity.viewModels
 import com.example.securechatapp.databinding.ActivityLoginBinding
 import com.example.securechatapp.model.AuthPrefs
 import com.example.securechatapp.model.AuthViewModel
+import com.example.securechatapp.network.ApiClient
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
@@ -18,6 +19,8 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
         authPrefs = AuthPrefs(this)
+        ApiClient.init(applicationContext)
+        viewModel.initPrefs(applicationContext)
 
         binding.btnLogin.setOnClickListener {
             val username = binding.etUsername.text.toString()
@@ -34,8 +37,18 @@ class LoginActivity : AppCompatActivity() {
                 startActivity(Intent(this, MainActivity::class.java))
                 finish()
             }.onFailure {
-                binding.tvError.text = it.message
+                val message = it.message ?: ""
+                if (message.contains("2FA")) {
+                    // Przejdź do TwoFactorActivity
+                    val intent = Intent(this, TwoFactorActivity::class.java)
+                    viewModel.initiateTwoFactor(binding.etUsername.text.toString(), binding.etPassword.text.toString())
+                    intent.putExtra("username", binding.etUsername.text.toString())
+                    startActivity(intent)
+                } else {
+                    binding.tvError.text = message
+                }
             }
         }
+
     }
 }

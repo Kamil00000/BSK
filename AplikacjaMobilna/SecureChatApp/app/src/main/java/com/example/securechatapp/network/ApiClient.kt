@@ -1,25 +1,29 @@
 package com.example.securechatapp.network
 
+import android.content.Context
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object ApiClient {
-    private const val BASE_URL = "http://10.0.2.2:8080/" // Dla emulatora (localhost)
+    private lateinit var appContext: Context
 
-    private val okHttpClient = OkHttpClient.Builder()
-        .addInterceptor(HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
-        })
-        .build()
+    fun init(context: Context) {
+        this.appContext = context.applicationContext
+    }
 
     val instance: ApiService by lazy {
+        val client = OkHttpClient.Builder()
+            .addInterceptor(TokenInterceptor(appContext))
+            .build()
+
         Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(okHttpClient)
+            .baseUrl("http://10.0.2.2:8080/")
+            .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ApiService::class.java)
     }
 }
+
